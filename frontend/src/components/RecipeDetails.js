@@ -1,126 +1,152 @@
 import { useState } from 'react';
-import { useRecipeContext } from '../hooks/useRecipeContext';
+import { useRecipesContext } from '../hooks/useRecipesContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 
+// date fns
+import formatDistanceToNow from 'date-fns/formatDistanceToNow';
+
 const RecipeDetails = ({ recipe }) => {
-  const { dispatch } = useRecipeContext();
+  const { dispatch } = useRecipesContext();
   const { user } = useAuthContext();
-  
   const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(recipe.name);
-  const [ingredients, setIngredients] = useState(recipe.ingredients);
-  const [instructions, setInstructions] = useState(recipe.instructions);
-  const [prepTime, setPrepTime] = useState(recipe.prepTime || '');
-  const [difficulty, setDifficulty] = useState(recipe.difficulty || 'Easy'); 
+  const [updatedRecipe, setUpdatedRecipe] = useState({
+    name: recipe.name,
+    ingredients: recipe.ingredients,
+    instructions: recipe.instructions,
+    prepTime: recipe.prepTime,
+    difficulty: recipe.difficulty,
+  });
 
-  // Handle delete recipe
-  const handleClick = async () => {
-    if (!user) {
-      return;
-    }
-
-    const response = await fetch('/api/recipes/:id:' + recipe._id, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${user.token}`
-      }
-    });
-    const json = await response.json();
+  const handleUpdate = async () => {
+    if (!user) return;
   
-    if (response.ok) {
-      dispatch({ type: 'DELETE_RECIPE', payload: json });
+    console.log("Updating recipe with ID:", recipe._id);
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes/${recipe._id}`, {
+        method: "PATCH",  // ✅ Ensure PATCH is used
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`
+        },
+        body: JSON.stringify(updatedRecipe),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const json = await response.json();
+  
+      // ✅ Update global state to reflect the change
+      dispatch({ type: "UPDATE_RECIPE", payload: json });
+  
+      // ✅ Update local state
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating recipe:", error);
     }
   };
+  
+  
 
-  // Handle edit (save changes)
-  const handleEdit = async (e) => {
-    e.preventDefault();
+  // ✅ Handle Delete Recipe
+  const handleDelete = async () => {
+    if (!user) return;
 
-    if (!user) {
-      return;
-    }
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes/${recipe._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
 
-    const updatedRecipe = { title, ingredients, instructions, prepTime, difficulty };
+      let json;
+      try {
+        json = await response.json();
+      } catch (error) {
+        console.error("Failed to parse JSON response:", error);
+        return;
+      }
 
-    const response = await fetch('/api/recipes/:id:' + recipe._id, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`,
-      },
-      body: JSON.stringify(updatedRecipe),
-    });
-    
-    const json = await response.json();
-
-    if (response.ok) {
-      dispatch({ type: 'UPDATE_RECIPE', payload: json });
-      setIsEditing(false);  // Exit edit mode
+      if (response.ok) {
+        dispatch({ type: 'DELETE_RECIPE', payload: recipe._id });
+      } else {
+        console.error("Failed to delete:", json.error);
+      }
+    } catch (error) {
+      console.error("Error deleting recipe:", error);
     }
   };
 
   return (
-    <div className="recipe-details">
+    <div className="workout-details">
       {isEditing ? (
-        <form onSubmit={handleEdit}>
-          <label>Recipe Name: </label>
+        // ✅ Show Edit Form when `isEditing` is true
+        <div>
+          <p><strong>Name</strong></p>
           <input
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
+            value={updatedRecipe.name}
+            onChange={(e) => setUpdatedRecipe({ ...updatedRecipe, name: e.target.value })}
           />
 
-          <label>Ingredients:</label>
+          <p><strong>Ingredients</strong></p>
+          <input
+            type="text"
+            value={updatedRecipe.ingredients}
+            onChange={(e) => setUpdatedRecipe({ ...updatedRecipe, ingredients: e.target.value })}
+          />
+
+          <p><strong>Cooking Instructions</strong></p>
           <textarea
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            required
+            value={updatedRecipe.instructions}
+            onChange={(e) => setUpdatedRecipe({ ...updatedRecipe, instructions: e.target.value })}
           />
 
-          <label>Cooking Instructions:</label>
-          <textarea
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            required
-          />
-
-          <label>Preparation Time (mins):</label>
+          <p><strong>Preparation Time (Mins)</strong></p>
           <input
             type="number"
-            value={prepTime}
-            onChange={(e) => setPrepTime(e.target.value)}
-            required
+            value={updatedRecipe.prepTime}
+            onChange={(e) => setUpdatedRecipe({ ...updatedRecipe, prepTime: e.target.value })}
           />
 
-          <label>Difficulty Level:</label>
+          <p><strong>Difficulty Level</strong></p>
           <select
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
-            required
+            value={updatedRecipe.difficulty}
+            onChange={(e) => setUpdatedRecipe({ ...updatedRecipe, difficulty: e.target.value })}
           >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
           </select>
 
-          <button type="submit">Save</button>
-          <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
-        </form>
+          <div style={{marginTop: 10, display: 'flex', gap: 10}}>
+            <button onClick={() => setIsEditing(false)}>Cancel</button>
+            <button onClick={handleUpdate}>Save</button>
+          </div>
+        </div>
       ) : (
-        <>
-          <h4><strong>Recipe Name:</strong>{recipe.name}</h4>
-          <p><strong>Ingredients:</strong> {recipe.ingredients}</p>
-          <p><strong>Instructions:</strong> {recipe.instructions}</p>
-          <p><strong>Preparation Time:</strong> {recipe.prepTime} minutes</p>
-          <p><strong>Difficulty:</strong> {recipe.difficulty}</p>
-
-          <span className="delete-icon" onClick={handleClick}>×</span>
-          <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit Recipe</button>
-        </>
+        // ✅ Show Recipe Details when `isEditing` is false
+        <div>
+          <h4>{recipe.name}</h4>
+          <p><strong>Ingredients: </strong>{recipe.ingredients}</p>
+          <p><strong>Cooking Instructions: </strong>{recipe.instructions}</p>
+          <p><strong>Preparation Time: </strong>{recipe.prepTime}</p>
+          <p><strong>Difficulty Level: </strong>{recipe.difficulty}</p>
+          <p>{formatDistanceToNow(new Date(recipe.createdAt), { addSuffix: true })}</p>
+          <div style={{display: 'flex', gap: 10}}>
+            <button style={{}} onClick={() => setIsEditing(true)}>Edit</button>
+            <button onClick={handleDelete}>Delete</button>
+          </div>
+          
+        </div>
       )}
     </div>
   );
 };
+
+
 
 export default RecipeDetails;

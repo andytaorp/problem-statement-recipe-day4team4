@@ -1,18 +1,19 @@
 import { useAuthContext } from './useAuthContext'
-import { useRecipeContext } from './useRecipeContext'  
+import { useRecipesContext } from './useRecipesContext'
 
 export const useLogout = () => {
-    const { dispatch } = useAuthContext()
-    const { dispatch: dispatchRecipes } = useRecipeContext()  
+  const { dispatch } = useAuthContext()
+  const { dispatch: dispatchRecipes } = useRecipesContext()
+  // need to change to recipe
 
-    const logout = () => {
+  const logout = () => {
+    // remove user from storage
+    localStorage.removeItem('user')
 
-        localStorage.removeItem('user')
+    // dispatch logout action
+    dispatch({ type: 'LOGOUT' })
+    dispatchRecipes({ type: 'SET_WORKOUTS', payload: null }) //need to change to recipe
+  }
 
-        dispatch({ type: 'LOGOUT' })
-
-        dispatchRecipes({ type: 'SET_RECIPE', payload: [] })  
-    }
-
-    return { logout }
+  return { logout }
 }
