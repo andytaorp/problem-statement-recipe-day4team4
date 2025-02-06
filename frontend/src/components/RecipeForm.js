@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useAuthContext } from "../hooks/useAuthContext";
 
-const RecipeForm = () => {
+const RecipeForm = ({ onRecipeAdded }) => { // Accepting a prop for refreshing list
   const [name, setName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [instructions, setInstructions] = useState('');
@@ -8,6 +9,7 @@ const RecipeForm = () => {
   const [difficulty, setDifficulty] = useState('easy');
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
+  const { user } = useAuthContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ const RecipeForm = () => {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes`, {
       method: 'POST',
       body: JSON.stringify(recipe),
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
     });
 
     const json = await response.json();
@@ -33,6 +35,10 @@ const RecipeForm = () => {
       setInstructions('');
       setPrepTime('');
       setDifficulty('easy');
+      
+      if (onRecipeAdded) {
+        onRecipeAdded(); // Trigger refresh function in parent
+      }
     }
   };
 

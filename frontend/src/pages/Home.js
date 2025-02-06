@@ -1,15 +1,21 @@
 import { useEffect } from "react";
 import { useRecipesContext } from "../hooks/useRecipesContext";
+import { useAuthContext } from "../hooks/useAuthContext";
 import RecipeDetails from "../components/RecipeDetails";
 import RecipeForm from "../components/RecipeForm";
 
 const Home = () => {
     const { recipes, dispatch } = useRecipesContext();
+    const { user } = useAuthContext();
 
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes`);
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/recipes`, {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                });
                 if (!response.ok) {
                     throw new Error("Failed to fetch recipes");
                 }
@@ -22,7 +28,7 @@ const Home = () => {
         };
 
         fetchRecipes();
-    }, [dispatch]); // ✅ Fetch recipes when app loads
+    }, [dispatch, user]); // ✅ Fetch recipes when app loads
 
     return (
         <div className="home">
