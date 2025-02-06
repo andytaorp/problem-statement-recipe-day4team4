@@ -1,13 +1,211 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* google font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;800&family=VT323&display=swap');
+
+/* layout */
+:root {
+  --primary: #6C63FF; 
+  --secondary: #FF6584; 
+  --background: #F5F5F5; 
+  --text: #333333; 
+  --error: #FF4D4D; 
+  --success: #00C853; 
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+  background: var(--background);
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  color: var(--text);
+}
+
+header {
+  background: #fff;
+}
+
+header .container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+header a:hover {
+  color: var(--primary);
+}
+
+.pages {
+  max-width: 1400px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+/* homepage */
+.home {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 100px;
+}
+
+.recipe-details {
+  background: #fff;
+  border-radius: 8px;
+  margin: 20px auto;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.recipe-details:hover {
+  transform: translateY(-5px);
+}
+
+.recipe-details h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  color: var(--primary);
+}
+
+.recipe-details p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.recipe-details span {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  background: var(--background);
+  padding: 6px;
+  border-radius: 50%;
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.recipe-details span:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+
+label, input {
+  display: block;
+}
+
+input {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+form button {
+  background: var(--primary);
+  border: 0;
+  color: #fff;
+  padding: 10px;
+  font-family: "Poppins";
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background: var(--secondary);
+}
+
+div.error {
+  padding: 10px;
+  background: #ffefef;
+  border: 1px solid var(--error);
+  color: var(--error);
+  border-radius: 4px;
+  margin: 20px 0;
+}
+
+input.error {
+  border: 1px solid var(--error);
+}
+
+/* navbar */
+nav {
+  display: flex;
+  align-items: center;
+}
+
+nav a {
+  margin-left: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+nav a:hover {
+  color: var(--primary);
+}
+
+nav button {
+  background: #fff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: "Poppins";
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+nav button:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* auth forms */
+form.signup, form.login {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+form.signup h2, form.login h2 {
+  text-align: center;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+form.signup label, form.login label {
+  font-weight: 500;
+  color: var(--text);
+}
+
+form.signup input, form.login input {
+  margin-bottom: 15px;
+}
+
+form.signup button, form.login button {
+  width: 100%;
+  margin-top: 10px;
 }
