@@ -1,40 +1,38 @@
-import { createContext, useReducer } from 'react'
+import { createContext, useReducer } from 'react';
 
-export const RecipeContext = createContext()
+export const RecipesContext = createContext();
 
-export const recipesReducer = (state, action) => {
+export const RecipesReducer = (state, action) => {
     switch (action.type) {
-        case 'SET_RECIPE':
-            return {
-                recipes: action.payload
-            }
-        case 'CREATE_RECIPE':
-            return {
-                recipes: [action.payload, ...state.recipes]
-            }
-        case 'DELETE_RECIPE':
-            return {
-                recipes: state.recipes.filter((r) => r._id !== action.payload._id)
-            }
-        case 'UPDATE_RECIPE':
+        case "SET_RECIPES":
+            return { recipes: action.payload };
+
+        case "CREATE_RECIPE":
+            return { recipes: [action.payload, ...state.recipes] };
+
+        case "UPDATE_RECIPE":
             return {
                 recipes: state.recipes.map((recipe) =>
-                    recipe._id === action.payload._id ? { ...recipe, ...action.payload } : recipe
+                    recipe._id === action.payload._id ? action.payload : recipe
                 ),
-            }
-        default:
-            return state
-    }
-}
+            };
 
-export const RecipeContextProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(recipesReducer, {
-        recipes: []
-    })
+        case "DELETE_RECIPE":
+            return { recipes: state.recipes.filter((recipe) => recipe._id !== action.payload) };
+
+        default:
+            return state;
+    }
+};
+
+export const RecipesContextProvider = ({ children }) => {
+    const [state, dispatch] = useReducer(RecipesReducer, {
+        recipes: [] // ✅ Ensure initial state is an empty array, not null
+    });
 
     return (
-        <RecipeContext.Provider value={{ ...state, dispatch }}>
+        <RecipesContext.Provider value={{ ...state, dispatch }}>
             {children}
-        </RecipeContext.Provider>
-    )
-}
+        </RecipesContext.Provider>
+    );
+};
